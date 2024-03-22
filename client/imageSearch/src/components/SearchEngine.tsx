@@ -4,7 +4,7 @@ const SearchEngine = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [images, setImages] = useState([]);
     const [searchTime, setsearchTime] = useState(null);
-
+    const [correctionSpelling, setcorrectionSpelling] = useState("")
     const search = async () => {
         try {
             if (!searchQuery) {
@@ -17,6 +17,9 @@ const SearchEngine = () => {
                 const imageURLs = data.items.map(item => item.link);
                 setImages(imageURLs);
                 setsearchTime(data.searchInformation.searchTime);
+            }
+            if(data.spelling.correctedQuery){
+                setcorrectionSpelling(data.spelling.correctedQuery)
             }
         } catch (error) {
             console.error("Error fetching images:", error);
@@ -41,7 +44,9 @@ const SearchEngine = () => {
             />
             <button onClick={handleSearchClick}>Sök</button>
             <div>
-                <p>Sökningen tog {searchTime} sekunder</p>
+                
+                {searchTime ? <p>Sökningen tog {searchTime} sekunder</p> : <p></p>}
+                {correctionSpelling ? <p>Menade du {correctionSpelling}?</p> : <p></p>}
                 <ul>
                     {images.map((imageURL, index) => (
                         <li key={index}>
