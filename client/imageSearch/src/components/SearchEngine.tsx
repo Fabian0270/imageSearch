@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const SearchEngine = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [images, setImages] = useState([]);
     const [searchTime, setsearchTime] = useState(null);
     const [correctionSpelling, setcorrectionSpelling] = useState("")
+    const { user } = useAuth0();
+
+
     const search = async () => {
         try {
             if (!searchQuery) {
@@ -14,8 +18,10 @@ const SearchEngine = () => {
             const data = await response.json();
             console.log(data)
             if (data.items && data.items.length > 0) {
-                const imageURLs = data.items.map(item => item.link);
-                setImages(imageURLs);
+                //const imageURLs = data.items.map(item => item.link);
+                const imageArray = data.items;
+                setImages(imageArray);
+                
                 setsearchTime(data.searchInformation.searchTime);
             }
             if(data.spelling.correctedQuery){
@@ -34,6 +40,25 @@ const SearchEngine = () => {
         search();
     };
 
+
+        // Funktion för att favorisera en bild
+        const handleFavorite = async (favoriteImage: any) => {
+            try {
+                console.log('image: ', favoriteImage);
+                
+                const response = await fetch('http://localhost:5172/favorite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user, favoriteImage })
+                });
+                console.log(response)
+            } catch (error) {
+                console.error('Error saving favorite:', error);
+            }
+        };
+
     return (
         <>
             <input
@@ -47,12 +72,16 @@ const SearchEngine = () => {
                 
                 {searchTime ? <p>Sökningen tog {searchTime} sekunder</p> : <p></p>}
                 {correctionSpelling ? <p>Menade du {correctionSpelling}?</p> : <p></p>}
+                
                 <ul>
-                    {images.map((imageURL, index) => (
+                    {images.map((theImage, index) => (
                         <li key={index}>
-                            <img src={imageURL} alt={`Image ${index}`} />
+                            <img src={theImage.link} alt={`Image ${index}`} />
+                            <button onClick={() => handleFavorite(theImage.image)}>
+                                Favorisera bild
+                            </button>
                         </li>
-                    ))}
+                    ))} 
                 </ul>
             </div>
         </>
