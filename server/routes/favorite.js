@@ -90,7 +90,7 @@ router.post('/', function(req, res)  {
                 // Här kan du använda userId för att få relevant data från json-objektet
                 //const user = jsonData.user[userId];
                 res.status(200).json({favorite_images: images});
-            } catch (parseError) {
+            } catch (parseError) {   
                 console.error('Error parsing JSON data:', parseError);
                 res.status(500).json({ error: 'Internal server error' });
             }

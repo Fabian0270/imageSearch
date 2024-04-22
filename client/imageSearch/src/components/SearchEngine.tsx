@@ -4,10 +4,9 @@ import { useAuth0 } from "@auth0/auth0-react";
 const SearchEngine = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [images, setImages] = useState([]);
-    const [searchTime, setsearchTime] = useState(null);
-    const [correctionSpelling, setcorrectionSpelling] = useState("")
+    const [searchTime, setSearchTime] = useState(null);
+    const [correctionSpelling, setCorrectionSpelling] = useState("");
     const { user } = useAuth0();
-
 
     const search = async () => {
         try {
@@ -18,14 +17,12 @@ const SearchEngine = () => {
             const data = await response.json();
             console.log(data)
             if (data.items && data.items.length > 0) {
-                //const imageURLs = data.items.map(item => item.link);
                 const imageArray = data.items;
                 setImages(imageArray);
-                
-                setsearchTime(data.searchInformation.searchTime);
+                setSearchTime(data.searchInformation.searchTime);
             }
-            if(data.spelling.correctedQuery){
-                setcorrectionSpelling(data.spelling.correctedQuery)
+            if (data.spelling.correctedQuery) {
+                setCorrectionSpelling(data.spelling.correctedQuery);
             }
         } catch (error) {
             console.error("Error fetching images:", error);
@@ -40,24 +37,26 @@ const SearchEngine = () => {
         search();
     };
 
+    const handleNewSearch = (newQuery) => {
+        setSearchQuery(newQuery)
+        search();
+    };
 
-        // Funktion för att favorisera en bild
-        const handleFavorite = async (favoriteImage: any) => {
-            try {
-                console.log('image: ', favoriteImage);
-                
-                const response = await fetch('http://localhost:5172/favorite', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ user, favoriteImage })
-                });
-                console.log(response)
-            } catch (error) {
-                console.error('Error saving favorite:', error);
-            }
-        };
+    const handleFavorite = async (favoriteImage) => {
+        try {
+            console.log('image: ', favoriteImage);
+            const response = await fetch('http://localhost:5172/favorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user, favoriteImage })
+            });
+            console.log(response)
+        } catch (error) {
+            console.error('Error saving favorite:', error);
+        }
+    };
 
     return (
         <>
@@ -69,10 +68,10 @@ const SearchEngine = () => {
             />
             <button onClick={handleSearchClick}>Sök</button>
             <div>
-                
-                {searchTime ? <p>Sökningen tog {searchTime} sekunder</p> : <p></p>}
-                {correctionSpelling ? <p>Menade du {correctionSpelling}?</p> : <p></p>}
-                
+                {searchTime ? <p>Sökningen tog {searchTime} sekunder</p> : null}
+                {correctionSpelling ? (
+                    <button onClick={() => handleNewSearch(correctionSpelling)}>Menade du {correctionSpelling}? Dubbelklicka här</button>
+                ) : null}
                 <ul>
                     {images.map((theImage, index) => (
                         <li key={index}>
@@ -81,7 +80,7 @@ const SearchEngine = () => {
                                 Favorisera bild
                             </button>
                         </li>
-                    ))} 
+                    ))}
                 </ul>
             </div>
         </>

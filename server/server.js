@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-app.use('/favorite', favoriteRouter)
+app.use('/favorite', favoriteRouter) 
 
 
 // Endpoint to get favorite images for a user
